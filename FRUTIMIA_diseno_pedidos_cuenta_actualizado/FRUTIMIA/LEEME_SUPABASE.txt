@@ -1,0 +1,85 @@
+FRUTIMIA + SUPABASE — GUÍA DE CONFIGURACIÓN
+===========================================
+
+ESTA VERSIÓN YA NO UTILIZA FIREBASE.
+Usa Supabase para autenticación y base de datos. El proyecto necesita que completes los pasos siguientes antes de que las funciones online trabajen.
+
+1) CREAR EL PROYECTO
+- Entra en https://supabase.com/ y crea un proyecto.
+- Elige una contraseña segura para la base de datos y guárdala en un lugar privado.
+- Elige una región cercana disponible (por ejemplo, una región de Estados Unidos).
+- El plan Free sirve para empezar, sujeto a sus límites y condiciones. No agregues tarjeta ni cambies a un plan de pago si no lo necesitas.
+
+2) COPIAR LAS DOS CLAVES PÚBLICAS
+- En Supabase abre Project Settings > API.
+- Copia Project URL y la clave anon/public (o publishable key si tu panel la muestra y el SDK la acepta).
+- Abre FRUTIMIA/js/supabase-config.js.
+- Reemplaza PEGA_AQUI_TU_PROJECT_URL por Project URL.
+- Reemplaza PEGA_AQUI_TU_ANON_PUBLIC_KEY por la clave pública.
+- En ADMIN_EMAIL escribe el correo que usarás para tu cuenta administradora.
+- NUNCA pegues la service_role key en el sitio, en un chat ni en este archivo.
+
+3) CREAR TABLAS Y REGLAS
+- En Supabase abre SQL Editor > New query.
+- Abre el archivo supabase/schema.sql de esta carpeta.
+- Copia todo su contenido, pégalo en SQL Editor y pulsa Run.
+- Esto crea perfiles, pedidos, puntos, recompensas, comentarios, mensajes y políticas RLS.
+
+4) CREAR TU CUENTA DE ADMINISTRADOR
+- En Authentication > Users, crea una cuenta con el correo indicado en ADMIN_EMAIL.
+- Confirma el correo si Supabase lo solicita.
+- Copia el User UID de esa cuenta.
+- En SQL Editor ejecuta este comando, reemplazando el UUID por el UID real:
+
+  update auth.users
+  set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"role":"admin"}'::jsonb
+  where id = 'PEGA-AQUI-EL-UID-REAL';
+
+- Cierra sesión e inicia sesión de nuevo en la web para refrescar el permiso.
+- No compartas contraseñas ni el UID públicamente.
+- El panel muestra el nombre “Fruti”; la cuenta se autentica con el correo configurado.
+
+5) FACEBOOK (OPCIONAL)
+- En Supabase: Authentication > Providers > Facebook, habilita Facebook.
+- Crea/configura la aplicación de Facebook en Meta for Developers y copia App ID y App Secret solamente en el panel de Supabase.
+- Configura en Meta la URL de callback que te muestra Supabase.
+- Configura también las Redirect URLs de Supabase para el dominio donde publicarás FRUTIMIA y para localhost si vas a probarlo.
+- La primera orden de una cuenta con identidad Facebook se marca con discount_applied=true una sola vez. Como FRUTIMIA no publica precios, el 15% debe calcularse sobre el total que confirme el negocio.
+
+6) PROBAR LA WEB
+- Abre la carpeta FRUTIMIA en Visual Studio Code.
+- Instala la extensión Live Server si no la tienes.
+- Clic derecho en index.html > Open with Live Server.
+- Prueba crear una cuenta, iniciar sesión, añadir productos al carrito y enviar un pedido.
+- No abras index.html con doble clic para probar Supabase Auth; usa Live Server o un hosting HTTPS.
+
+FUNCIONES INCLUIDAS
+- Catálogo sin precios públicos.
+- Registro e inicio de sesión con correo y contraseña.
+- Botón de acceso con Facebook (requiere configurar el proveedor en Supabase/Meta).
+- Carrito y pedidos para recoger únicamente en la heladería.
+- Aviso de preparación aproximada de 30 minutos; puede tardar más o menos y el cliente debe esperar confirmación.
+- Puntos: 1,000 por unidad, acreditados cuando Fruti cambia el estado del pedido a “recogido”.
+- Recompensas: Cono 3,000; Minuta 10,000; Granita de café 15,000; Fresa con crema 20,000; Banana split 30,000 puntos.
+- Solicitudes de canje descuentan los puntos al registrarse y quedan pendientes de confirmación.
+- Opiniones de 1 a 5 estrellas y comentarios; administración puede eliminarlos.
+- Chat básico entre cliente y administración.
+- Panel de pedidos, comentarios, chats y ajuste manual de puntos.
+
+NOTAS IMPORTANTES
+- Las imágenes de productos y el logo debes agregarlos tú a la carpeta images con los nombres/rutas que aparecen en js/script.js y en index.html.
+- Los nombres de productos son editables y provisionales. Los precios no se muestran.
+- El número de WhatsApp, TikTok y horario se editan en CONFIG dentro de js/script.js.
+- El chat de esta versión actualiza al recargar; para mensajes instantáneos en vivo se puede activar Realtime en Supabase y añadir suscripción.
+- La versión no incluye todavía un gestor visual para crear/editar productos ni subir fotos desde el panel.
+- La acreditación de puntos y el descuento de Facebook se realizan mediante triggers SQL; revisa el esquema antes de publicar.
+- Protege la cuenta administradora y no compartas credenciales.
+- El plan gratuito tiene límites, puede pausar proyectos inactivos y puede cambiar. Consulta el panel de Supabase antes de publicar un negocio en producción.
+
+
+ACTUALIZACIÓN DEL PANEL DE ADMINISTRACIÓN
+1. En Supabase > SQL Editor crea una consulta nueva.
+2. Abre supabase/actualizacion_admin_frutimia.sql, copia todo y ejecútalo una sola vez.
+3. La cuenta administradora configurada en js/supabase-config.js es codeckhn@gmail.com.
+4. Después de ejecutar la actualización, sube la carpeta FRUTIMIA completa al repositorio, conservando tus imágenes.
+5. Prueba primero con una cuenta cliente de prueba. El bloqueo impide iniciar sesión durante el plazo indicado; eliminar cuenta borra la cuenta de Auth y los registros vinculados.

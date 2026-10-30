@@ -1,0 +1,11 @@
+FRUTIMIA 🍓
+
+Esta edición utiliza Supabase para las funciones online. Consulta LEEME_SUPABASE.txt para conectar la base de datos, configurar autenticación y asignar la cuenta administradora.
+
+Para personalizar la tienda:
+- Edita los productos, categorías, imágenes, WhatsApp, TikTok, dirección y horario en js/script.js.
+- No se publican precios.
+- Las imágenes deben agregarse a la carpeta images; el ZIP no contiene fotografías comerciales reales.
+- Ejecuta la página con Live Server desde Visual Studio Code.
+
+La web no queda publicada automáticamente: debes configurar Supabase y después elegir un hosting.
